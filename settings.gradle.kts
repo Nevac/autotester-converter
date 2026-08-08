@@ -1,1 +1,1 @@
-rootProject.name = "kotlin-gradle-app"
+rootProject.name = "autofeedback-converter"

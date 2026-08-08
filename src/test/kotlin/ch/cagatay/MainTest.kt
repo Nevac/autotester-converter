@@ -1,4 +1,4 @@
-package org.example
+package ch.cagatay
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
