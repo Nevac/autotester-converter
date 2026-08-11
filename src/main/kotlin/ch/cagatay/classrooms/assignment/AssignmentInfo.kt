@@ -1,4 +1,4 @@
-package ch.cagatay.classrooms
+package ch.cagatay.classrooms.assignment
 
 data class AssignmentInfo(
     val assignment: Assignment,

@@ -22,6 +22,17 @@ class GitlabService private constructor() {
         return gitlabRepository.checkoutLatest()
     }
 
+    fun checkout(projectId: String, commitHash: String): Path {
+        val gitlabRepository = GitLabRepository(
+            getHttpRepositoryURI(projectId).toString(),
+            System.getenv("GITLAB_USER")
+                ?: error("GITLAB_USER is not configured"),
+            System.getenv("GITLAB_TOKEN")
+                ?: error("GITLAB_USER is not configured")
+        )
+        return gitlabRepository.checkout(commitHash)
+    }
+
     @Throws(GitLabApiException::class)
     fun getHttpRepositoryURI(projectId: String): URI {
         this.gitlabApiFactory.api().use { userGitlabApi ->

@@ -1,4 +1,4 @@
-package ch.cagatay.classrooms
+package ch.cagatay.classrooms.assignment
 import java.time.OffsetDateTime
 import java.util.UUID
 

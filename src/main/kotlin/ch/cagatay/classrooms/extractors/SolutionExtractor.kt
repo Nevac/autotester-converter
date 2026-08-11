@@ -1,4 +1,4 @@
-package ch.cagatay.classrooms
+package ch.cagatay.classrooms.extractors
 
 import ch.cagatay.classrooms.Zipper.zipFolder
 import java.io.FileInputStream

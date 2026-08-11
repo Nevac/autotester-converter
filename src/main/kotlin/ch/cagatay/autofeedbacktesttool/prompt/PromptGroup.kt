@@ -1,4 +1,4 @@
-package ch.cagatay.autofeedbacktesttool
+package ch.cagatay.autofeedbacktesttool.prompt
 
 import java.time.LocalDateTime
 

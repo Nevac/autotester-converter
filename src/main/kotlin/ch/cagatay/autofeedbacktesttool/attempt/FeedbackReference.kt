@@ -1,4 +1,4 @@
-package ch.cagatay.autofeedbacktesttool
+package ch.cagatay.autofeedbacktesttool.attempt
 
 data class FeedbackReference(
     val _id: String,

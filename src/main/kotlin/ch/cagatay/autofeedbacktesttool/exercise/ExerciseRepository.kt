@@ -1,8 +1,9 @@
-package ch.cagatay.autofeedbacktesttool
+package ch.cagatay.autofeedbacktesttool.exercise
 
 import ch.cagatay.databases.Databases
 import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.model.BulkWriteOptions
+import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Filters.eq
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
@@ -15,6 +16,18 @@ class ExerciseRepository private constructor(databases: Databases) {
 
     companion object {
         val instance = ExerciseRepository(Databases.instance)
+    }
+
+    fun findManyByNames(names: List<String>): Map<String, Exercise> {
+        if (names.isEmpty()) {
+            return emptyMap()
+        }
+
+        return collection
+            .find(Filters.`in`("name", names.distinct()))
+            .toList()
+            .map(Exercise::fromDocument)
+            .associateBy(Exercise::name)
     }
 
     fun upsertMany(exercises: List<Exercise>): BulkWriteResult? {

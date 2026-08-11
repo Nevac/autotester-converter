@@ -1,4 +1,4 @@
-package ch.cagatay.classrooms
+package ch.cagatay.classrooms.extractors
 
 import java.io.ByteArrayOutputStream
 import java.io.IOException

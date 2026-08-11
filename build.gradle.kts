@@ -31,6 +31,10 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.gitlab4j:gitlab4j-api:6.1.0")
     implementation("org.apache.commons:commons-compress:1.28.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation(kotlin("reflect"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
+
 
     runtimeOnly("org.postgresql:postgresql:42.7.13")
     runtimeOnly("org.postgresql:postgresql:42.7.13")

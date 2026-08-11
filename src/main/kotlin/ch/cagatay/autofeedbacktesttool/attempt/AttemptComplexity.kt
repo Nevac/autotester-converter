@@ -1,4 +1,4 @@
-package ch.cagatay.autofeedbacktesttool
+package ch.cagatay.autofeedbacktesttool.attempt
 
 enum class AttemptComplexity(val value: String) {
     EASY("low"),

@@ -1,5 +1,6 @@
-package ch.cagatay.classrooms
+package ch.cagatay.classrooms.extractors
 
+import ch.cagatay.classrooms.Zipper
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.file.Path

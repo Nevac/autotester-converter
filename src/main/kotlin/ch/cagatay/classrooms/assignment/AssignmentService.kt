@@ -1,5 +1,7 @@
-package ch.cagatay.classrooms
+package ch.cagatay.classrooms.assignment
 
+import ch.cagatay.classrooms.extractors.ExerciseExtractor
+import ch.cagatay.classrooms.extractors.SolutionExtractor
 import ch.cagatay.git.GitlabService
 import java.util.UUID
 
@@ -24,7 +26,7 @@ class AssignmentService {
 
             var solutionTexts: MutableMap<String, String> = mutableMapOf();
             if(assignment.gitlabRepositorySolutionId != null) {
-                solutionTexts = SolutionExtractor.extract(
+                solutionTexts = SolutionExtractor.Companion.extract(
                     gitlabService.checkoutLatest(
                         assignment.gitlabRepositorySolutionId
                     )
