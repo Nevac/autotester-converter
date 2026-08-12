@@ -34,6 +34,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation(kotlin("reflect"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
+    implementation("org.apache.commons:commons-csv:1.14.1")
 
 
     runtimeOnly("org.postgresql:postgresql:42.7.13")

@@ -4,6 +4,7 @@ import ch.cagatay.autofeedback.Evaluation
 import ch.cagatay.autofeedback.Result
 import ch.cagatay.classrooms.assignment.Assignment
 import ch.cagatay.classrooms.evaluation.AutofeedbackEvaluation
+import ch.cagatay.classrooms.exercise.assignment.ExerciseAssignment
 import ch.cagatay.classrooms.student.exercise.assignment.StudentExerciseAssignment
 
 data class EvaluationContainer(
@@ -11,5 +12,6 @@ data class EvaluationContainer(
     val llmResult: Result,
     val autofeedbackEvaluation: AutofeedbackEvaluation,
     val assignment: Assignment,
-    val studentExerciseAssignment: StudentExerciseAssignment
+    val exerciseAssignment: ExerciseAssignment,
+    val studentExerciseAssignment: StudentExerciseAssignment,
 )

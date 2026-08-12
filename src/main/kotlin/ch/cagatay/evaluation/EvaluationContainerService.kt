@@ -7,6 +7,8 @@ import ch.cagatay.autofeedback.ResultRepository
 import ch.cagatay.classrooms.assignment.AssignmentRepository
 import ch.cagatay.classrooms.evaluation.AutofeedbackEvaluation
 import ch.cagatay.classrooms.evaluation.AutofeedbackEvaluationRepository
+import ch.cagatay.classrooms.exercise.assignment.ExerciseAssignment
+import ch.cagatay.classrooms.exercise.assignment.ExerciseAssignmentRepository
 import ch.cagatay.classrooms.student.exercise.assignment.AssignmentStudentKey
 import ch.cagatay.classrooms.student.exercise.assignment.StudentExerciseAssignmentRepository
 import java.util.UUID
@@ -16,6 +18,7 @@ class EvaluationContainerService private constructor() {
     val autofeedbackEvaluationRepository = AutofeedbackEvaluationRepository.instance
     val resultRepository = ResultRepository.instance
     val assignmentRepository = AssignmentRepository.instance
+    val exerciseAssignmentRepository = ExerciseAssignmentRepository.instance
     val studentExerciseAssignmentRepository = StudentExerciseAssignmentRepository.instance
 
     companion object {
@@ -49,9 +52,9 @@ class EvaluationContainerService private constructor() {
         autofeedbackEvaluations: Map<UUID, AutofeedbackEvaluation>,
         results: Map<UUID, Result>
     ): List<EvaluationContainer> {
-        val assignments = assignmentRepository.findByIds(
-            autofeedbackEvaluations.values.map { it.assignmentId }.toSet().toList()
-        )
+        val assignmentIds = autofeedbackEvaluations.values.map { it.assignmentId }.toSet().toList()
+        val assignments = assignmentRepository.findByIds(assignmentIds)
+        val exerciseAssignments = exerciseAssignmentRepository.findByIds(assignmentIds)
         val studentExerciseAssignment = studentExerciseAssignmentRepository.findByAssignmentAndStudentKeys(
             autofeedbackEvaluations.values.map {
                 AssignmentStudentKey(it.assignmentId, it.studentName)
@@ -72,6 +75,7 @@ class EvaluationContainerService private constructor() {
                 results[evalId]!!,
                 autofeedbackEvaluation,
                 assignments[assignmentId]!!,
+                exerciseAssignments[assignmentId]!!,
                 studentExerciseAssignment[AssignmentStudentKey(assignmentId, autofeedbackEvaluation.studentName)]!!
             )
         }

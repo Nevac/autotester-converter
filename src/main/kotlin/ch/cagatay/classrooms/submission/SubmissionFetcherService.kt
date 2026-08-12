@@ -30,13 +30,16 @@ class SubmissionFetcherService private constructor() {
                 async(requestDispatcher) {
                     try {
                         val exerciseResult = generateExerciseResult(container)
+                        val templates = generateTemplates(container)
 
                         container.evaluation.id to SubmissionResult(
                             container.evaluation.id,
                             container.assignment,
-                            exerciseResult
+                            exerciseResult,
+                            templates
                         )
                     } catch (exception: Exception) {
+                        println(exception)
                         null
                     } finally {
                         val completed = done.incrementAndGet()
@@ -67,6 +70,16 @@ class SubmissionFetcherService private constructor() {
         }.toMap()
     }
 
+    private fun generateTemplates(evaluationContainer: EvaluationContainer): Map<String, String> {
+        val extractedSubmissions = extractTemplate(evaluationContainer)
+        val templates = SubmissionFeedbackExtractor.extract(evaluationContainer)
+        return extractedSubmissions.submission!!.filter {
+            templates.containsKey(it.key) && it.value.submission !== null
+        }.map {
+            it.key to templates[it.key]!!
+        }.toMap()
+    }
+
     private fun extractSubmissions(evaluationContainer: EvaluationContainer): SubmissionExtractorResult {
         return SubmissionExtractor.extract(
             gitlabService.checkout(
@@ -75,5 +88,18 @@ class SubmissionFetcherService private constructor() {
             ),
             PreviousExerciseFeedbacks.noPreviousLlmResult()
         )
+    }
+
+    private fun extractTemplate(evaluationContainer: EvaluationContainer): SubmissionExtractorResult {
+        val gitlabProjectId = evaluationContainer.exerciseAssignment.gitLabRepositoryTemplateId
+        if(gitlabProjectId != null) {
+            return SubmissionExtractor.extract(
+                gitlabService.checkoutLatest(
+                    evaluationContainer.exerciseAssignment.gitLabRepositoryTemplateId,
+                ),
+                PreviousExerciseFeedbacks.noPreviousLlmResult()
+            )
+        }
+        return SubmissionExtractorResult.ignore()
     }
 }

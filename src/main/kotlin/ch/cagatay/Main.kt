@@ -11,6 +11,8 @@ fun main() {
     //SubmissionCommands.instance.transferSelectedSubmissions()
     //SubmissionCommands.instance.generateSubmissionFeedbackTable()
     //AssignmentCommands.instance.transferAssignments()
+    SubmissionCommands.instance.generateSubmissionFeedbackTable()
+    SubmissionCommands.instance.cleanSubmissionFeedbackTable()
 
     databases.close()
 }

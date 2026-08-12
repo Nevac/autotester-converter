@@ -21,7 +21,7 @@ class EvaluationRepository private constructor(databases: Databases) {
     fun findAllSuccessful(): Map<UUID, Evaluation>  {
         return dsl.selectFrom(EVALUATION)
             .where(EVALUATION.STATUS.eq("SUCCESS"))
-            .limit(5000)
+            .limit(100)
             .fetchMap(EVALUATION.ID, Evaluation::class.java)
             .mapKeys { (id, _) -> requireNotNull(id) }
     }
