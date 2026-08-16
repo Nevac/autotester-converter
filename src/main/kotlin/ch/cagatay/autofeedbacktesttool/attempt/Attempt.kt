@@ -16,7 +16,7 @@ data class Attempt(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val complexity: AttemptComplexity,
-    val fs26Feedback: Fs26Feedback?
+    val fs26Feedback: Fs26Feedback?,
 ) {
     fun toDocument(): Document =
         Document("_id", _id)

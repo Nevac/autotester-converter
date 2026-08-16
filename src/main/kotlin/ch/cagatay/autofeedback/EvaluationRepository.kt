@@ -1,6 +1,6 @@
 package ch.cagatay.autofeedback
 
-import ch.cagatay.databases.Databases
+import ch.cagatay.converter.databases.Databases
 import com.example.jooq.autofeedback.tables.references.EVALUATION
 import java.util.UUID
 
@@ -21,7 +21,9 @@ class EvaluationRepository private constructor(databases: Databases) {
     fun findAllSuccessful(): Map<UUID, Evaluation>  {
         return dsl.selectFrom(EVALUATION)
             .where(EVALUATION.STATUS.eq("SUCCESS"))
-            .limit(100)
+            .orderBy(EVALUATION.ID.asc())
+            .offset(1705)
+            .limit(5000)
             .fetchMap(EVALUATION.ID, Evaluation::class.java)
             .mapKeys { (id, _) -> requireNotNull(id) }
     }

@@ -9,12 +9,12 @@ import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
 import org.bson.Document
 
-class AttemptRepository private constructor(databases: Databases) {
+class AttemptFs26Repository private constructor(databases: Databases) {
     val mongoDb = databases.autofeedbackTestToolDatabase
-    val collection = mongoDb.getCollection("attempts")
+    val collection = mongoDb.getCollection("attemptsfs26")
 
     companion object {
-        val instance = AttemptRepository(Databases.instance)
+        val instance = AttemptFs26Repository(Databases.instance)
     }
 
     fun upsertMany(attempts: List<Attempt>): BulkWriteResult? {

@@ -1,4 +1,4 @@
-package ch.cagatay.evaluation
+package ch.cagatay.converter.evaluation
 
 import ch.cagatay.autofeedback.Evaluation
 import ch.cagatay.autofeedback.Result

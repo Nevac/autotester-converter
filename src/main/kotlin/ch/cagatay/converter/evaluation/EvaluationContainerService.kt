@@ -1,4 +1,4 @@
-package ch.cagatay.evaluation
+package ch.cagatay.converter.evaluation
 
 import ch.cagatay.autofeedback.Evaluation
 import ch.cagatay.autofeedback.EvaluationRepository
@@ -7,7 +7,6 @@ import ch.cagatay.autofeedback.ResultRepository
 import ch.cagatay.classrooms.assignment.AssignmentRepository
 import ch.cagatay.classrooms.evaluation.AutofeedbackEvaluation
 import ch.cagatay.classrooms.evaluation.AutofeedbackEvaluationRepository
-import ch.cagatay.classrooms.exercise.assignment.ExerciseAssignment
 import ch.cagatay.classrooms.exercise.assignment.ExerciseAssignmentRepository
 import ch.cagatay.classrooms.student.exercise.assignment.AssignmentStudentKey
 import ch.cagatay.classrooms.student.exercise.assignment.StudentExerciseAssignmentRepository

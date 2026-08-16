@@ -1,4 +1,4 @@
-package ch.cagatay
+package ch.cagatay.converter
 
 import ch.cagatay.autofeedbacktesttool.exercise.Exercise
 import ch.cagatay.autofeedbacktesttool.exercise.ExerciseDifficulty
@@ -7,7 +7,7 @@ import ch.cagatay.classrooms.assignment.AssignmentService
 import java.time.LocalDateTime
 import java.util.UUID
 
-class AssignmentCommands {
+class AssignmentCommands private constructor() {
 
     companion object {
         val instance = AssignmentCommands()

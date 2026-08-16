@@ -1,6 +1,6 @@
 package ch.cagatay.classrooms.submission
 
-import ch.cagatay.evaluation.EvaluationContainer
+import ch.cagatay.converter.evaluation.EvaluationContainer
 
 class SubmissionFeedbackExtractor {
     companion object {

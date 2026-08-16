@@ -2,7 +2,7 @@ package ch.cagatay.classrooms.submission
 
 import ch.cagatay.classrooms.extractors.SubmissionExtractor
 import ch.cagatay.classrooms.extractors.SubmissionExtractorResult
-import ch.cagatay.evaluation.EvaluationContainer
+import ch.cagatay.converter.evaluation.EvaluationContainer
 import ch.cagatay.git.GitlabService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -71,13 +71,11 @@ class SubmissionFetcherService private constructor() {
     }
 
     private fun generateTemplates(evaluationContainer: EvaluationContainer): Map<String, String> {
-        val extractedSubmissions = extractTemplate(evaluationContainer)
-        val templates = SubmissionFeedbackExtractor.extract(evaluationContainer)
-        return extractedSubmissions.submission!!.filter {
-            templates.containsKey(it.key) && it.value.submission !== null
-        }.map {
-            it.key to templates[it.key]!!
-        }.toMap()
+        val templateExtractions = extractTemplate(evaluationContainer).submission
+        if(templateExtractions != null) {
+            return templateExtractions.filter { it.value.submission != null }.mapValues { it.value.submission!! }
+        }
+        return emptyMap()
     }
 
     private fun extractSubmissions(evaluationContainer: EvaluationContainer): SubmissionExtractorResult {
@@ -91,11 +89,11 @@ class SubmissionFetcherService private constructor() {
     }
 
     private fun extractTemplate(evaluationContainer: EvaluationContainer): SubmissionExtractorResult {
-        val gitlabProjectId = evaluationContainer.exerciseAssignment.gitLabRepositoryTemplateId
+        val gitlabProjectId = evaluationContainer.exerciseAssignment.gitlabRepositoryTemplateId
         if(gitlabProjectId != null) {
             return SubmissionExtractor.extract(
                 gitlabService.checkoutLatest(
-                    evaluationContainer.exerciseAssignment.gitLabRepositoryTemplateId,
+                    gitlabProjectId,
                 ),
                 PreviousExerciseFeedbacks.noPreviousLlmResult()
             )

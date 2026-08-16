@@ -1,16 +1,17 @@
-package ch.cagatay
+package ch.cagatay.converter.submission
 
 import ch.cagatay.autofeedback.PromptBuilder
 import ch.cagatay.autofeedbacktesttool.attempt.Attempt
 import ch.cagatay.autofeedbacktesttool.attempt.AttemptComplexity
+import ch.cagatay.autofeedbacktesttool.attempt.AttemptFs26Repository
 import ch.cagatay.autofeedbacktesttool.attempt.AttemptRepository
 import ch.cagatay.autofeedbacktesttool.attempt.ExpectedFeedback
 import ch.cagatay.autofeedbacktesttool.attempt.Fs26Feedback
 import ch.cagatay.autofeedbacktesttool.exercise.ExerciseRepository
 import ch.cagatay.classrooms.submission.SubmissionFetcherService
 import ch.cagatay.classrooms.submission.SubmissionResult
-import ch.cagatay.evaluation.EvaluationContainer
-import ch.cagatay.evaluation.EvaluationContainerService
+import ch.cagatay.converter.evaluation.EvaluationContainer
+import ch.cagatay.converter.evaluation.EvaluationContainerService
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.csv.CSVFormat
 import java.io.File
@@ -22,9 +23,10 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class SubmissionCommands {
-    val fullEvaluationCsvPath = "C:\\Users\\Cagatay\\Documents\\Studium\\MSE\\P9\\full-evaluations-2.csv"
-    val fullCleanedEvaluationCsvPath = "C:\\Users\\Cagatay\\Documents\\Studium\\MSE\\P9\\full-cleaned-evaluations.csv"
+    val fullEvaluationCsvPath = "C:\\Users\\Cagatay\\Documents\\Studium\\MSE\\P9\\full-evaluations-3.csv"
+    val fullCleanedEvaluationCsvPath = "C:\\Users\\Cagatay\\Documents\\Studium\\MSE\\P9\\full-cleaned-evaluations-3.csv"
     val randomSamplePath = "C:\\Users\\Cagatay\\Documents\\Studium\\MSE\\P9\\random-sample.csv"
+    val attemptFs26Repository: AttemptFs26Repository = AttemptFs26Repository.Companion.instance
 
     companion object {
         val instance = SubmissionCommands()
@@ -34,24 +36,68 @@ class SubmissionCommands {
         val attempts = generateAttempts(
             EvaluationContainerService.instance.getAllEvaluationContainers()
         )
+        attemptFs26Repository.upsertMany(attempts)
         File(fullEvaluationCsvPath)
             .outputStream()
             .use { it.writeCsv(attempts) }
         println("Generating table done")
     }
 
-    fun transferSelectedSubmissions() {
+    fun transferSelectedSubmissions(attemptIds: List<SubmissionTransferKey>) {
         // Put attempts you wanna transfer here  by evaluation id
-        val attemptsToTransfer = listOf(UUID.fromString("00165803-d890-43de-9825-130e46f1b28a"))
+        val attemptsToTransfer = attemptIds
+        val attemptsMap = attemptIds.associateBy { it.evaluationId }
+        val attempts = generateAttempts(
+            EvaluationContainerService.instance.getEvaluationContainersByIds(attemptsToTransfer.map { it.evaluationId })
+        ).filter {
+            if(it.fs26Feedback != null) {
+                val evaluationId = UUID.fromString(it.fs26Feedback.autofeedbackEvaluationId)
+                if(attemptsMap.containsKey(evaluationId)) {
+                    attemptsMap[evaluationId]!!.exercises.contains(it.fs26Feedback.exerciseName)
+                } else false
+            } else false
+        }
+
         AttemptRepository.instance.upsertMany(
-            generateAttempts(
-                EvaluationContainerService.instance.getEvaluationContainersByIds(attemptsToTransfer)
-            )
+            attempts
         )
         println("Submissions transferred to Attempts")
     }
 
-    fun createRandomSample() {
+    fun createRandomSample(
+        input: Path,
+        output: Path
+    ) {
+        val input = Path.of(fullEvaluationCsvPath)
+        val output = Path.of(randomSamplePath)
+
+        val format = CSVFormat.DEFAULT.builder()
+            .setHeader()
+            .setSkipHeaderRecord(true)
+            .get()
+
+        val (header, randomRows) =
+            Files.newBufferedReader(input, StandardCharsets.UTF_8).use { reader ->
+                format.parse(reader).use { parser ->
+                    parser.headerNames.toList() to
+                            parser.map { it.toList() }
+                                .shuffled()
+                                .take(10)
+                }
+            }
+
+        Files.newBufferedWriter(output, StandardCharsets.UTF_8).use { writer ->
+            CSVFormat.DEFAULT.print(writer).use { printer ->
+                printer.printRecord(header)
+
+                randomRows.forEach { row ->
+                    printer.printRecord(row)
+                }
+            }
+        }
+    }
+
+    fun mergeCsv() {
         val input = Path.of(fullEvaluationCsvPath)
         val output = Path.of(randomSamplePath)
 
@@ -123,6 +169,69 @@ class SubmissionCommands {
         }
     }
 
+    fun mergeCsvFiles(
+        inputFiles: List<Path>,
+        outputFile: Path
+    ) {
+        require(inputFiles.isNotEmpty()) {
+            "At least one input CSV is required"
+        }
+
+        val normalizedOutput = outputFile.toAbsolutePath().normalize()
+        val normalizedInputs = inputFiles.map {
+            it.toAbsolutePath().normalize()
+        }
+
+        require(normalizedOutput !in normalizedInputs) {
+            "The output file cannot also be an input file"
+        }
+
+        val inputFormat = CSVFormat.DEFAULT.builder()
+            .setHeader()
+            .setSkipHeaderRecord(true)
+            .get()
+
+        Files.newBufferedWriter(
+            outputFile,
+            StandardCharsets.UTF_8
+        ).use { writer ->
+            CSVFormat.DEFAULT.print(writer).use { printer ->
+                var expectedHeader: List<String>? = null
+
+                for (inputFile in inputFiles) {
+                    Files.newBufferedReader(
+                        inputFile,
+                        StandardCharsets.UTF_8
+                    ).use { reader ->
+                        inputFormat.parse(reader).use { parser ->
+                            val currentHeader = parser.headerNames.toList()
+
+                            if (expectedHeader == null) {
+                                expectedHeader = currentHeader
+                                printer.printRecord(currentHeader)
+                            } else {
+                                require(currentHeader == expectedHeader) {
+                                    "Header mismatch in $inputFile.\n" +
+                                            "Expected: $expectedHeader\n" +
+                                            "Found: $currentHeader"
+                                }
+                            }
+
+                            for (record in parser) {
+                                require(record.size() == expectedHeader!!.size) {
+                                    "Invalid column count in $inputFile, " +
+                                            "record ${record.recordNumber}"
+                                }
+
+                                printer.printRecord(record.toList())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun isEmptyFeedbackTemplate(feedback: String): Boolean {
         val lines = feedback
             .lineSequence()
@@ -165,7 +274,8 @@ class SubmissionCommands {
     }
 
     private fun generateAttempts(evaluationContainers: List<EvaluationContainer>): List<Attempt> {
-        val submissionResults = runBlocking { SubmissionFetcherService.instance.generateSubmissionResults(evaluationContainers) }
+        val submissionResults =
+            runBlocking { SubmissionFetcherService.instance.generateSubmissionResults(evaluationContainers) }
         val exercises = ExerciseRepository.instance.findManyByNames(
             extractExerciseNames(submissionResults.values.toList())
         )
@@ -177,33 +287,35 @@ class SubmissionCommands {
                 .filter { !it.value.isIgnored }
                 .filter {
                     if(templates.containsKey(it.key)) {
-                        it.value.llmFeedback != templates[it.key]!!
-                    } else false
+                        templates[it.key]!! != it.value.llmFeedback
+                    } else true
                 }
                 .map {
-                val exerciseName = sR.assignment.name + "-" + it.key
-                val exerciseResult = it.value
-                Attempt(
-                    name = exerciseResult.name,
-                    exercise = exercises[exerciseName]!!,
-                    attempt = exerciseResult.submissionText,
-                    expectedFeedback = ExpectedFeedback.create(),
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now(),
-                    complexity = AttemptComplexity.EASY,
-                    fs26Feedback = Fs26Feedback(
-                        sR.evaluationId.toString(),
-                        exerciseResult.llmFeedback
+                    val exerciseName = sR.assignment.name + "-" + it.key
+                    val exerciseResult = it.value
+                    Attempt(
+                        name = exerciseResult.name,
+                        exercise = exercises[exerciseName]!!,
+                        attempt = exerciseResult.submissionText,
+                        expectedFeedback = ExpectedFeedback.create(),
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now(),
+                        complexity = AttemptComplexity.EASY,
+                        fs26Feedback = Fs26Feedback(
+                            sR.evaluationId.toString(),
+                            exerciseResult.llmFeedback,
+                            sR.templates[it.key],
+                            it.key
+                        )
                     )
-                )
-            }
+                }
         }
     }
 
     private fun OutputStream.writeCsv(attempts: List<Attempt>) {
         bufferedWriter(StandardCharsets.UTF_8).use { writer ->
             writer.appendLine(
-                listOf("Evaluation Id", "Prompt", "Feedback")
+                listOf("Attempt Id", "Evaluation Id", "Exercise Name", "Prompt", "Feedback")
                     .joinToString(",") { csvCell(it) }
             )
 
@@ -214,7 +326,9 @@ class SubmissionCommands {
 
                     writer.appendLine(
                         listOf(
+                            attempt.name,
                             feedback.autofeedbackEvaluationId,
+                            attempt.exercise.name,
                             PromptBuilder.build(attempt),
                             feedback.llmFeedback
                         ).joinToString(",") { csvCell(it) }

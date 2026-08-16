@@ -4,6 +4,6 @@ import java.util.UUID
 
 data class ExerciseAssignment(
     val id: UUID,
-    val gitLabRepositoryTemplateId: String?,
-    val gitLabGroupId: Int?,
+    val gitlabRepositoryTemplateId: String?,
+    val gitlabGroupId: Int?,
 )

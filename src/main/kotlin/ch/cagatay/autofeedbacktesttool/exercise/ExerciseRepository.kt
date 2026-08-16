@@ -1,6 +1,6 @@
 package ch.cagatay.autofeedbacktesttool.exercise
 
-import ch.cagatay.databases.Databases
+import ch.cagatay.converter.databases.Databases
 import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.model.BulkWriteOptions
 import com.mongodb.client.model.Filters

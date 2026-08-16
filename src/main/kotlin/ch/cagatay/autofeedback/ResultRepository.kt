@@ -1,7 +1,6 @@
 package ch.cagatay.autofeedback
 
-import ch.cagatay.databases.Databases
-import com.example.jooq.autofeedback.tables.references.EVALUATION
+import ch.cagatay.converter.databases.Databases
 import com.example.jooq.autofeedback.tables.references.RESULT
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.util.UUID

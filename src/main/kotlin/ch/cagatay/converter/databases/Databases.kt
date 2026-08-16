@@ -1,4 +1,4 @@
-package ch.cagatay.databases
+package ch.cagatay.converter.databases
 
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients

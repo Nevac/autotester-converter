@@ -21,10 +21,9 @@ object PromptBuilder {
     ): String {
         val instruction: String = """
                 You are a programming tutor.
-                You will be provided with the exercise %s and the students attempt to solve the exercise.
+                You will be provided with the exercise ${if (solution != null) ", an example solution to the exercise " else ""} and the students attempt to solve the exercise.
                 Your task is to provide feedback for the student's attempt to solve the given exercise. You will be provided with additional documents for domain knowledge with a RAG.
                 Speak in you form.
-                ${if (solution != null) ", an example solution to the exercise " else ""}
                 ${if (solution != null) "The student’s attempt doesn’t need to match exactly with the example solution since there are many valid solutions, it serves as a one shot example.\n" else ""}
                 Your feedback mustn’t contain a direct solution, it should point out issues such that the student can try to work out a solution themselves.
                 Dont greet or provide a summary at the end. Structure your response always in those three categories only. For every point in a category, create a new line starting with a dash.

@@ -1,24 +1,26 @@
-package ch.cagatay.autofeedbacktesttool.attempt
+package ch.cagatay.autofeedbacktesttool.evaluation.group
 
+import ch.cagatay.autofeedbacktesttool.exercise.Exercise
 import ch.cagatay.converter.databases.Databases
 import com.mongodb.bulk.BulkWriteResult
 import com.mongodb.client.model.BulkWriteOptions
+import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Filters.eq
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
 import org.bson.Document
 
-class AttemptRepository private constructor(databases: Databases) {
+class EvaluationGroupRepository private constructor(databases: Databases) {
     val mongoDb = databases.autofeedbackTestToolDatabase
-    val collection = mongoDb.getCollection("attempts")
+    val collection = mongoDb.getCollection("evaluationgroups")
 
     companion object {
-        val instance = AttemptRepository(Databases.instance)
+        val instance = EvaluationGroupRepository(Databases.instance)
     }
 
-    fun upsertMany(attempts: List<Attempt>): BulkWriteResult? {
-        val documents = attempts.map { it.toDocument() }
+    fun upsertMany(exercises: List<EvaluationGroup>): BulkWriteResult? {
+        val documents = exercises.map { it.toDocument() }
 
         val operations: List<WriteModel<Document>> =
             documents.map { document ->
