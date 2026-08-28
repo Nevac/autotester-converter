@@ -7,7 +7,7 @@ data class ExpectedFeedbackSemanticStatistic(
     val id: String,
     val metric: FeedbackMetric,
     val sentence: String,
-    val scores: Array<ExpectedFeedbackSemanticScore>
+    val scores: List<ExpectedFeedbackSemanticScore>
 ) {
     fun toDocument(): Document =
         Document("id", id)

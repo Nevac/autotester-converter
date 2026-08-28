@@ -2,6 +2,7 @@ package ch.cagatay.autofeedbacktesttool.evaluation
 
 import ch.cagatay.autofeedbacktesttool.Llm
 import ch.cagatay.autofeedbacktesttool.attempt.Attempt
+import ch.cagatay.autofeedbacktesttool.evaluation.group.EvaluationGroupLlm
 import ch.cagatay.autofeedbacktesttool.evaluation.score.EvaluationScore
 import ch.cagatay.autofeedbacktesttool.evaluation.statistic.EvaluationSemanticStatistic
 import ch.cagatay.autofeedbacktesttool.prompt.PromptGroup
@@ -59,10 +60,10 @@ data class Evaluation(
             .append("evaluationGroup", evaluationGroup)
             .append("attempt", attempt.toDocument())
             .append("promptGroup", promptGroup.toDocument())
-            .append("llm", llm)
+            .append("llm", llm.value)
             .append("generatedFeedback", generatedFeedback)
-            .append("state", state)
-            .append("score", score)
+            .append("state", state.value)
+            .append("score", score.toDocument())
             .append("semanticStatic", semanticStatic.toDocument())
             .append("ast", ast.toDocument())
             .append("ragDocuments", ragDocuments)

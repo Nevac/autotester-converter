@@ -32,17 +32,17 @@ class Databases private constructor(
     companion object {
         var instance = Databases(
             autofeedbackSettings = DatabaseSettings(
-                url = "jdbc:postgresql://localhost:5432/autofeedback_live_data",
-                username = "postgres",
-                password = "password"
+                url = requiredEnvironmentVariable("AF_DB_URL"),
+                username = requiredEnvironmentVariable("AF_DB_USER"),
+                password = requiredEnvironmentVariable("AF_DB_PASS")
             ),
             classroomSettings = DatabaseSettings(
-                url = "jdbc:postgresql://localhost:5433/classrooms_live_data",
-                username = "postgres",
-                password = "password"
+                url = requiredEnvironmentVariable("CR_DB_URL"),
+                username = requiredEnvironmentVariable("CR_DB_USER"),
+                password = requiredEnvironmentVariable("CR_DB_PASS")
             ),
             autofeedbackTestToolSettings = MongoSettings(
-                connectionString = "mongodb://localhost:27017",
+                connectionString = requiredEnvironmentVariable("AFT_DB_URL"),
             )
         )
 

@@ -3,14 +3,14 @@ package ch.cagatay.autofeedbacktesttool.evaluation.statistic
 import org.bson.Document
 
 data class EvaluationSemanticStatistic(
-    val expectedFeedback: Array<ExpectedFeedbackSemanticStatistic>,
-    val generatedFeedback: Array<GeneratedFeedbackSemanticStatistic>,
+    val expectedFeedback: List<ExpectedFeedbackSemanticStatistic>,
+    val generatedFeedback: List<GeneratedFeedbackSemanticStatistic>,
 ) {
     companion object {
         fun empty(): EvaluationSemanticStatistic {
             return EvaluationSemanticStatistic(
-                expectedFeedback = arrayOf(),
-                generatedFeedback = arrayOf(),
+                expectedFeedback = listOf(),
+                generatedFeedback = listOf(),
             )
         }
     }

@@ -1,24 +1,21 @@
 package ch.cagatay.autofeedbacktesttool.rag
 
 import org.bson.Document
-import org.bson.types.ObjectId
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.Date
 
-data class RagStatic(
-    val _id: ObjectId = ObjectId(),
+data class Rag(
+    val _id: String,
     val name: String,
-    val exerciseRagDocuments: Map<String, Array<String>>,
-    val attemptRagDocuments: Map<String, Array<String>>,
+    val apiId: String,
     val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
+    val updatedAt: LocalDateTime
 ) {
     fun toDocument(): Document =
         Document("_id", _id)
             .append("name", name)
-            .append("exerciseRagDocuments", exerciseRagDocuments)
-            .append("attemptRagDocuments", attemptRagDocuments)
+            .append("apiId", apiId)
             .append(
                 "createdAt",
                 Date.from(createdAt.toInstant(ZoneOffset.UTC))

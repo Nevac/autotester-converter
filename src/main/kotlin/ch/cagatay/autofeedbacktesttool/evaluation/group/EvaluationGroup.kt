@@ -3,6 +3,7 @@ package ch.cagatay.autofeedbacktesttool.evaluation.group
 import ch.cagatay.autofeedbacktesttool.Llm
 import ch.cagatay.autofeedbacktesttool.attempt.Attempt
 import ch.cagatay.autofeedbacktesttool.prompt.PromptGroup
+import ch.cagatay.autofeedbacktesttool.rag.Rag
 import ch.cagatay.autofeedbacktesttool.rag.RagStatic
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -10,17 +11,18 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.Date
 
-data class EvaluationGroup (
+data class EvaluationGroup(
     val _id: ObjectId = ObjectId(),
     val name: String,
     val promptGroup: PromptGroup,
     val attempts: List<Attempt>,
-    val llms: List<Llm>,
+    val llms: Map<Llm, EvaluationGroupLlm>,
     val state: EvaluationGroupState,
-    val ragStatic: RagStatic,
     val astEnabled: Boolean,
-    val bestLlm: Llm,
-    val bestScore: Double,
+    val rag: Rag? = null,
+    val ragStatic: RagStatic? = null,
+    val bestLlm: Llm? = null,
+    val bestScore: Double? = null,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
 ) {
@@ -31,12 +33,17 @@ data class EvaluationGroup (
                 name = requireNotNull(document.getString("name")),
                 promptGroup = requireNotNull(document.get("promptGroup", PromptGroup::class.java)),
                 attempts = requireNotNull(document.getList("attempts", Attempt::class.java)),
-                llms = requireNotNull(document.getList("llms", Llm::class.java)),
+                llms = llmsFromDocument(
+                    requireNotNull(document.get("llms", Document::class.java)) {
+                        "Missing document field: llms"
+                    }
+                ),
                 state = requireNotNull(document.get("state", EvaluationGroupState::class.java)),
-                ragStatic = requireNotNull(document.get("ragStatic", RagStatic::class.java)),
+                rag = document.get("ragStatic", Rag::class.java),
+                ragStatic = document.get("ragStatic", RagStatic::class.java),
                 astEnabled = requireNotNull(document.getBoolean("astEnabled")),
-                bestLlm = requireNotNull(document.get("bestLlm", Llm::class.java)),
-                bestScore = requireNotNull(document.getDouble("bestScore")),
+                bestLlm = document.get("bestLlm", Llm::class.java),
+                bestScore = document.getDouble("bestScore"),
                 createdAt = requireNotNull(document.getDate("createdAt"))
                     .toInstant()
                     .atOffset(ZoneOffset.UTC)
@@ -46,6 +53,17 @@ data class EvaluationGroup (
                     .atOffset(ZoneOffset.UTC)
                     .toLocalDateTime()
             )
+
+        private fun llmsFromDocument(
+            document: Document
+        ): Map<Llm, EvaluationGroupLlm> =
+            document.entries.associate { (key, value) ->
+                val valueDocument = value as? Document
+                    ?: error("Expected llms.$key to be a document")
+
+                Llm.valueOf(key) to
+                        EvaluationGroupLlm.fromDocument(valueDocument)
+            }
     }
 
     fun toDocument(): Document =
@@ -53,8 +71,9 @@ data class EvaluationGroup (
             .append("name", name)
             .append("promptGroup", promptGroup.toDocument())
             .append("attempts", attempts.map { it.toDocument() })
-            .append("llms", llms)
+            .append("llms", llmsToDocument(llms))
             .append("state", state)
+            .append("rag", rag)
             .append("ragStatic", ragStatic)
             .append("astEnabled", astEnabled)
             .append("bestLlm", bestLlm)
@@ -67,4 +86,13 @@ data class EvaluationGroup (
                 "updatedAt",
                 Date.from(updatedAt.toInstant(ZoneOffset.UTC))
             )
+
+    private fun llmsToDocument(
+        llms: Map<Llm, EvaluationGroupLlm>
+    ): Document =
+        Document().apply {
+            llms.forEach { (llm, evaluationGroup) ->
+                append(llm.value, evaluationGroup.toDocument())
+            }
+        }
 }

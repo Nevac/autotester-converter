@@ -1,25 +1,16 @@
-# Kotlin Gradle App
+# Autotester Converter
 
-A minimal Kotlin/JVM command-line application built with Gradle.
+A minimal kotlin application to transfer data from autofeedback to autotester.
 
-## Requirements
+To use, alter Main.kt with the command you want to use and execute the program.
+Currently no further documentation is available.
 
-- JDK 17 or newer
+## Needed env variables
 
-## Run
+CLASSROOM_ID={Gitlab Classrooms the Classrooms ID of which you want to convert data from}
 
-```bash
-./gradlew run
-```
+GITLAB_TOKEN= {Generate token in user settings}
 
-## Test
+GITLAB_URL= {url_to_gitlab}
 
-```bash
-./gradlew test
-```
-
-## Build
-
-```bash
-./gradlew build
-```
+GITLAB_USER= {mail}

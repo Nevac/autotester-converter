@@ -6,13 +6,13 @@ import org.bson.types.ObjectId
 data class EvaluationAst(
     val _id: ObjectId = ObjectId(),
     val enabled: Boolean,
-    val constructs: Array<String>
+    val constructs: List<String>
 ) {
     companion object {
         fun disabled(): EvaluationAst {
             return EvaluationAst(
                 enabled = false,
-                constructs = emptyArray()
+                constructs = listOf()
             )
         }
     }
